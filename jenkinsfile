@@ -18,7 +18,7 @@ pipeline {
                 dir('hub-de-leitura-integrado') {
                     bat '''
                         call npm install 
-                        start /B "" npm start
+                        cmd.exe /c "start /b npm start"
                         timeout /t 5 /nobreak
                     '''
                 }
