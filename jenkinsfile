@@ -1,0 +1,43 @@
+pipeline {
+    agent any
+    tools { nodejs "nodejs" }
+
+    stages {
+        stage("Clonar o projeto") {
+            steps {
+                bat '''
+                    if exist exercicio-jenkins-modulo-18 rmdir /s /q exercicio-jenkins-modulo-18
+                    git clone https://github.com/Pesseguini/exercicio-jenkins-modulo-18.git
+                '''
+            }
+        }
+
+        stage("Instalar dependencias e subir o servidor") {
+            steps {
+                dir('exercicio-jenkins-modulo-18') {
+                    bat '''
+                        call npm install
+                        start /B npm start
+                    '''
+                }
+            }
+        }
+
+        stage('Executar testes automatizados') {
+            steps {
+                dir('exercicio-jenkins-modulo-18') {
+                    bat 'call npm test'
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            dir('exercicio-jenkins-modulo-18') {
+                archiveArtifacts artifacts: 'cypress/screenshots/**/*.*,cypress/videos/**/*.*', allowEmptyArchive: true
+            }
+            bat 'taskkill /F /IM node.exe || exit 0'
+        }
+    }
+}
