@@ -22,5 +22,9 @@
   "dependencies": {
     "@faker-js/faker": "^10.5.0",
     "cypress": "^15.19.0"
+  },
+  "devDependencies": {
+    "allure-commandline": "^2.46.1",
+    "allure-cypress": "^3.13.0"
   }
 }

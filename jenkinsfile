@@ -3,40 +3,26 @@ pipeline {
     tools { nodejs "nodejs" }
 
     stages {
-        stage("Clonar o projeto") {
-            steps {
-                bat '''
-                    if exist exercicio-jenkins-modulo-18 rmdir /s /q exercicio-jenkins-modulo-18
-                    git clone https://github.com/Pesseguini/exercicio-jenkins-modulo-18.git
-                '''
-            }
-        }
-
         stage("Instalar dependencias e subir o servidor") {
             steps {
-                dir('exercicio-jenkins-modulo-18') {
-                    bat '''
-                        call npm install
-                        start /B npm start
-                    '''
-                }
+                bat '''
+                    call npm install
+                    start /B npm start
+                '''
             }
         }
 
         stage('Executar testes automatizados') {
             steps {
-                dir('exercicio-jenkins-modulo-18') {
-                    bat 'call npm test'
-                }
+                bat 'npx cypress run'
             }
         }
     }
 
     post {
         always {
-            dir('exercicio-jenkins-modulo-18') {
-                archiveArtifacts artifacts: 'cypress/screenshots/**/*.*,cypress/videos/**/*.*', allowEmptyArchive: true
-            }
+            bat 'npx allure generate allure-results --clean -o allure-report || exit 0'
+            archiveArtifacts artifacts: 'cypress/screenshots/**/*.*,cypress/videos/**/*.*,allure-report/**/*.*', allowEmptyArchive: true
             bat 'taskkill /F /IM node.exe || exit 0'
         }
     }
