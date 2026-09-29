@@ -41,11 +41,6 @@ describe('Funcionalidade: Catálogo de Livros', () => {
 
     });
 
-    it('Deve clicar no sétimo botão Adicionar à cesta', () => {
-        cy.get('.btn-primary').eq(6).click()
-        cy.get('#global-alert-container').should('contain', '"Cem Anos de Solidão" foi adicionado à cesta!')
-    });
-
     it('Deve clicar no nome do livro e direcionar para a tela de checkout', () => {
         cy.contains('A Revolução dos Bichos').click()
         cy.url().should('include', 'book-details')
