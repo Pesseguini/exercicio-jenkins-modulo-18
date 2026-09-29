@@ -1,32 +1,44 @@
 pipeline {
     agent any
-    tools { nodejs "nodejs" }
+    tools { nodejs "nodejs"}
 
     stages {
-        stage("Clonar o projeto") {
+
+        stage("Clonar o hub de leitura integrado") {
             steps {
                 bat '''
-                    if exist exercicio-jenkins-modulo-18 rmdir /s /q exercicio-jenkins-modulo-18
-                    git clone https://github.com/Pesseguini/exercicio-jenkins-modulo-18.git
+                    if exist hub-de-leitura-integrado rmdir /s /q hub-de-leitura-integrado
+                    git clone --depth 1 https://github.com/EBAC-QE/hub-de-leitura-integrado.git
                 '''
             }
         }
 
-        stage("Instalar dependencias e subir o servidor") {
+        stage("Instalar dependencias do projeto e subir servidor") {
             steps {
-                dir('exercicio-jenkins-modulo-18') {
+                dir('hub-de-leitura-integrado') {
                     bat '''
-                        call npm install
-                        start /B npm start
+                        call npm install 
+                        start /B "" npm start
+                        timeout /t 5 /nobreak
                     '''
                 }
             }
         }
 
-        stage('Executar testes automatizados') {
+        stage("Instalar dependencias do projeto de teste") {
             steps {
                 dir('exercicio-jenkins-modulo-18') {
-                    bat 'call npm test'
+                    bat 'call npm install'
+                }
+            }
+        }
+
+        stage('Executar os testes automatizados') {
+            steps {
+                dir('exercicio-jenkins-modulo-18') {
+                    bat '''
+                        call npm test
+                    '''
                 }
             }
         }
@@ -35,7 +47,8 @@ pipeline {
     post {
         always {
             dir('exercicio-jenkins-modulo-18') {
-                archiveArtifacts artifacts: 'cypress/screenshots/**/*.*,cypress/videos/**/*.*', allowEmptyArchive: true
+                bat 'npx allure generate allure-results --clean -o allure-report || exit 0'
+                archiveArtifacts artifacts: 'cypress/screenshots/**/*.*,cypress/videos/**/*.*,allure-report/**/*.*', allowEmptyArchive: true
             }
             bat 'taskkill /F /IM node.exe || exit 0'
         }
