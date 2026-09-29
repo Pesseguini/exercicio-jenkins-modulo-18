@@ -4,52 +4,30 @@ pipeline {
 
     stages {
 
-        stage("Clonar o hub de leitura integrado") {
+        stage("Instalar dependencias") {
             steps {
-                bat '''
-                    if exist hub-de-leitura-integrado rmdir /s /q hub-de-leitura-integrado
-                    git clone --depth 1 https://github.com/EBAC-QE/hub-de-leitura-integrado.git
+                bat 'call npm install'
+            }
+        }
+
+        stage("Subir servidor") {
+            steps {
+                powershell '''
+                    Start-Process node -ArgumentList "src/server.js" -NoNewWindow
                 '''
+                bat 'timeout /t 5 /nobreak'
             }
         }
 
-        stage("Instalar dependencias do projeto e subir servidor") {
+        stage("Executar testes automatizados") {
             steps {
-                dir('hub-de-leitura-integrado') {
-                    bat '''
-                        call npm install 
-                        cmd.exe /c "start /b npm start"
-                        timeout /t 5 /nobreak
-                    '''
-                }
-            }
-        }
-
-        stage("Instalar dependencias do projeto de teste") {
-            steps {
-                dir('exercicio-jenkins-modulo-18') {
-                    bat 'call npm install'
-                }
-            }
-        }
-
-        stage('Executar os testes automatizados') {
-            steps {
-                dir('exercicio-jenkins-modulo-18') {
-                    bat '''
-                        call npm test
-                    '''
-                }
+                bat 'call npm test'
             }
         }
     }
 
     post {
         always {
-            dir('exercicio-jenkins-modulo-18') {
-                bat 'npx allure generate allure-results --clean -o allure-report || exit 0'
-                archiveArtifacts artifacts: 'cypress/screenshots/**/*.*,cypress/videos/**/*.*,allure-report/**/*.*', allowEmptyArchive: true
-            }
             bat 'taskkill /F /IM node.exe || exit 0'
         }
     }

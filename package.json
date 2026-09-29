@@ -4,28 +4,24 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node server.js",
-    "test": "npx cypress run --browser chrome",
-    "cy:report": "npx cypress run --browser chrome --record --key d8f8b69d-03a4-43dc-8310-49d4fd0654ed"
+    "start": "node src/server.js",
+    "test": "npx cypress run --browser chrome"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Pesseguini/hub-de-leitura-teste-ui.git"
+    "url": "git+https://github.com/Pesseguini/exercicio-jenkins-modulo-18.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "bugs": {
-    "url": "https://github.com/Pesseguini/hub-de-leitura-teste-ui/issues"
+    "url": "https://github.com/Pesseguini/exercicio-jenkins-modulo-18/issues"
   },
-  "homepage": "https://github.com/Pesseguini/hub-de-leitura-teste-ui#readme",
+  "homepage": "https://github.com/Pesseguini/exercicio-jenkins-modulo-18#readme",
   "dependencies": {
     "@faker-js/faker": "^10.5.0",
     "cypress": "^15.19.0"
   },
-  "devDependencies": {
-    "allure-commandline": "^2.46.1",
-    "allure-cypress": "^3.13.0"
-  }
+  "devDependencies": {}
 }
