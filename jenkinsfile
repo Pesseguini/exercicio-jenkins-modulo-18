@@ -5,24 +5,30 @@ pipeline {
     stages {
         stage("Instalar dependencias e subir o servidor") {
             steps {
-                bat '''
-                    call npm install
-                    start /B npm start
-                '''
+                dir('exercicio-jenkins-modulo-18') {
+                    bat '''
+                        call npm install
+                        start /B npm start
+                    '''
+                }
             }
         }
 
         stage('Executar testes automatizados') {
             steps {
-                bat 'npx cypress run'
+                dir('exercicio-jenkins-modulo-18') {
+                    bat 'npx cypress run'
+                }
             }
         }
     }
 
     post {
         always {
-            bat 'npx allure generate allure-results --clean -o allure-report || exit 0'
-            archiveArtifacts artifacts: 'cypress/screenshots/**/*.*,cypress/videos/**/*.*,allure-report/**/*.*', allowEmptyArchive: true
+            dir('exercicio-jenkins-modulo-18') {
+                bat 'npx allure generate allure-results --clean -o allure-report || exit 0'
+                archiveArtifacts artifacts: 'cypress/screenshots/**/*.*,cypress/videos/**/*.*,allure-report/**/*.*', allowEmptyArchive: true
+            }
             bat 'taskkill /F /IM node.exe || exit 0'
         }
     }
