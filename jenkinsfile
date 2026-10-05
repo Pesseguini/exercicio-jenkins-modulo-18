@@ -4,24 +4,35 @@ pipeline {
 
     stages {
 
-        stage("Instalar dependencias") {
+        stage("Clonar o hub de leitura integrado") {
             steps {
-                bat 'call npm install'
+                bat '''
+                    if exist hub-de-leitura-integrado rmdir /s /q hub-de-leitura-integrado
+                    git clone --depth 1 https://github.com/EBAC-QE/hub-de-leitura-integrado.git
+                '''
             }
         }
 
-        stage("Subir servidor") {
+        stage("Subir servidor da aplicacao") {
             steps {
-                powershell '''
-                    Start-Process node -ArgumentList "src/server.js" -NoNewWindow
-                '''
-                bat 'timeout /t 5 /nobreak'
+                dir('hub-de-leitura-integrado') {
+                    bat '''
+                        call npm install 
+                        start /B "" npm start
+                        timeout /t 5 /nobreak
+                    '''
+                }
             }
         }
 
         stage("Executar testes automatizados") {
             steps {
-                bat 'call npm test'
+                dir('exercicio-jenkins-modulo-18') {
+                    bat '''
+                        call npm install
+                        call npm test
+                    '''
+                }
             }
         }
     }
