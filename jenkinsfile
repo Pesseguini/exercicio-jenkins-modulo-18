@@ -3,7 +3,7 @@ pipeline {
     tools { nodejs "nodejs" }
 
     stages {
-        stage("Clonar o projeto") {
+        stage("Clonar o projeto de testes") {
             steps {
                 bat '''
                     if exist exercicio-jenkins-modulo-18 rmdir /s /q exercicio-jenkins-modulo-18
@@ -12,9 +12,13 @@ pipeline {
             }
         }
 
-        stage("Instalar dependencias e subir o servidor") {
+        stage("Clonar e subir o servidor da aplicação") {
             steps {
-                dir('exercicio-jenkins-modulo-18') {
+                bat '''
+                    if exist hub-de-leitura-integrado2 rmdir /s /q hub-de-leitura-integrado2
+                    git clone https://github.com/EBAC-QE/hub-de-leitura-integrado2.git
+                '''
+                dir('hub-de-leitura-integrado') {
                     bat '''
                         call npm install
                         start /B npm start
@@ -26,6 +30,7 @@ pipeline {
         stage('Executar testes automatizados') {
             steps {
                 dir('exercicio-jenkins-modulo-18') {
+                    bat 'call npm install'
                     bat 'call npm test'
                 }
             }
