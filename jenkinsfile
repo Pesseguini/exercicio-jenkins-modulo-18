@@ -1,37 +1,32 @@
 pipeline {
     agent any
-    tools { nodejs "nodejs"}
+    tools { nodejs "nodejs" }
 
     stages {
-
-        stage("Clonar o hub de leitura integrado") {
+        stage("Clonar o projeto") {
             steps {
                 bat '''
-                    if exist hub-de-leitura-integrado rmdir /s /q hub-de-leitura-integrado
-                    git clone --depth 1 https://github.com/EBAC-QE/hub-de-leitura-integrado.git
+                    if exist exercicio-jenkins-modulo-18 rmdir /s /q exercicio-jenkins-modulo-18
+                    git clone https://github.com/Pesseguini/exercicio-jenkins-modulo-18.git
                 '''
             }
         }
 
-        stage("Subir servidor da aplicacao") {
+        stage("Instalar dependencias e subir o servidor") {
             steps {
-                dir('hub-de-leitura-integrado') {
+                dir('exercicio-jenkins-modulo-18') {
                     bat '''
-                        call npm install 
-                        start /B "" npm start
-                        timeout /t 5 /nobreak
+                        call npm install
+                        start /B npm start
                     '''
                 }
             }
         }
 
-        stage("Executar testes automatizados") {
+        stage('Executar testes automatizados') {
             steps {
                 dir('exercicio-jenkins-modulo-18') {
-                    bat '''
-                        call npm install
-                        call npm test
-                    '''
+                    bat 'call npm test'
                 }
             }
         }
@@ -39,6 +34,9 @@ pipeline {
 
     post {
         always {
+            dir('exercicio-jenkins-modulo-18') {
+                archiveArtifacts artifacts: 'cypress/screenshots/**/*.*,cypress/videos/**/*.*', allowEmptyArchive: true
+            }
             bat 'taskkill /F /IM node.exe || exit 0'
         }
     }
