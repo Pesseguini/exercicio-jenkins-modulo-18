@@ -13,7 +13,7 @@ pipeline {
         stage("Subir o servidor da aplicação") {
             steps {
                 bat 'if exist cypress-hub-de-leitura rmdir /s /q cypress-hub-de-leitura'
-                bat 'git clone https://github.com/Pesseguini/cypress-hub-de-leitura.git'
+                bat 'git clone https://github.com/EBAC-QE/hub-de-leitura-integrado2.git cypress-hub-de-leitura'
                 dir('cypress-hub-de-leitura') {
                     bat 'call npm install'
                     bat 'call npm run setup'
