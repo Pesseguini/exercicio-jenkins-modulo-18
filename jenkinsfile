@@ -5,27 +5,19 @@ pipeline {
     stages {
         stage("Clonar o projeto de testes") {
             steps {
-                bat '''
-                    if exist exercicio-jenkins-modulo-18 rmdir /s /q exercicio-jenkins-modulo-18
-                    git clone https://github.com/Pesseguini/exercicio-jenkins-modulo-18.git
-                '''
+                bat 'if exist exercicio-jenkins-modulo-18 rmdir /s /q exercicio-jenkins-modulo-18'
+                bat 'git clone https://github.com/Pesseguini/exercicio-jenkins-modulo-18.git'
             }
         }
 
-        stage("Clonar e subir o servidor da aplicação") {
+        stage("Subir o servidor da aplicação") {
             steps {
-                bat '''
-                    if exist cypress-hub-de-leitura rmdir /s /q cypress-hub-de-leitura
-                    git clone https://github.com/Pesseguini/cypress-hub-de-leitura.git
-                '''
+                bat 'if exist cypress-hub-de-leitura rmdir /s /q cypress-hub-de-leitura'
+                bat 'git clone https://github.com/Pesseguini/cypress-hub-de-leitura.git'
                 dir('cypress-hub-de-leitura') {
-                    bat '''
-                        call npm install
-                        start /B "" npm start
-                    '''
-                    bat '''
-                        powershell -Command "$maxRetries = 30; $retryCount = 0; while ($retryCount -lt $maxRetries) { try { $response = Invoke-WebRequest -Uri 'http://localhost:3000' -UseBasicParsing; if ($response.StatusCode -eq 200) { exit 0 } } catch { } Start-Sleep -Seconds 2; $retryCount++ }; exit 1"
-                    '''
+                    bat 'call npm install'
+                    bat 'call npm run db'
+                    bat 'start /B npm start'
                 }
             }
         }
@@ -34,7 +26,7 @@ pipeline {
             steps {
                 dir('exercicio-jenkins-modulo-18') {
                     bat 'call npm install'
-                    bat 'call npm test'
+                    bat 'call npx cypress run'
                 }
             }
         }
