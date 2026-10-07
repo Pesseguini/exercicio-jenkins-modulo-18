@@ -15,13 +15,16 @@ pipeline {
         stage("Clonar e subir o servidor da aplicação") {
             steps {
                 bat '''
-                    if exist hub-de-leitura-integrado2 rmdir /s /q hub-de-leitura-integrado2
-                    git clone https://github.com/EBAC-QE/hub-de-leitura-integrado2.git
+                    if exist cypress-hub-de-leitura rmdir /s /q cypress-hub-de-leitura
+                    git clone https://github.com/Pesseguini/cypress-hub-de-leitura.git
                 '''
-                dir('hub-de-leitura-integrado') {
+                dir('cypress-hub-de-leitura') {
                     bat '''
                         call npm install
-                        start /B npm start
+                        start /B "" npm start
+                    '''
+                    bat '''
+                        powershell -Command "$maxRetries = 30; $retryCount = 0; while ($retryCount -lt $maxRetries) { try { $response = Invoke-WebRequest -Uri 'http://localhost:3000' -UseBasicParsing; if ($response.StatusCode -eq 200) { exit 0 } } catch { } Start-Sleep -Seconds 2; $retryCount++ }; exit 1"
                     '''
                 }
             }
@@ -42,7 +45,6 @@ pipeline {
             dir('exercicio-jenkins-modulo-18') {
                 archiveArtifacts artifacts: 'cypress/screenshots/**/*.*,cypress/videos/**/*.*', allowEmptyArchive: true
             }
-            bat 'taskkill /F /IM node.exe || exit 0'
         }
     }
 }
